@@ -1,0 +1,9 @@
+version: 2
+
+models:
+  - name: stg_eth_token_transfers
+    columns:
+      - name: VALUE
+        tests:
+          - no_negative_amount:
+              column_name: VALUE

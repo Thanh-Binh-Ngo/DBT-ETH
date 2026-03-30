@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: src_eth
+    database: ETH
+    schema: ETH_SCHEMA
+    description: Ethereum source data
+    tables:
+      - name: CONTRACTS
+        description: Smart contracts
+      - name: TOKEN_TRANSFERS
+        description: Token transfer events
+      - name: TRANSACTIONS
+        description: Blockchain transactions
