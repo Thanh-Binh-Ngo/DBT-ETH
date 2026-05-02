@@ -1,0 +1,33 @@
+version: 2
+
+# Felder einer Exposure:
+# name      - eindeutiger Name der Exposure
+# type      - Art der Nutzung: dashboard | notebook | analysis | ml | application
+# maturity  - Reifegrad: low | medium | high
+# depends_on - dbt-Modelle, auf die das Tool zugreift (erscheinen im Lineage-Graph)
+# owner     - Verantwortliche Person (name + email)
+
+exposures:
+  - name: token_activity_dashboard
+    type: dashboard
+    maturity: medium
+    description: |
+      Dashboard zur täglichen Token-Transfer-Aktivität auf der Ethereum-Blockchain.
+      Zeigt Transfervolumen, Nutzungsfrequenz und aktive Wallets pro Token-Contract.
+    depends_on:
+      - ref('mart_token_activity')
+    owner:
+      name: Binh Ngo
+      email: ngo.datasolutions@gmail.com
+
+  - name: contract_overview_report
+    type: analysis
+    maturity: low
+    description: |
+      Analyse-Report für eine vollständige Übersicht aller Smart Contracts.
+      Kombiniert Deployment-Details mit aggregierten Token-Transfer-Metriken.
+    depends_on:
+      - ref('mart_contract_overview', v=1)
+    owner:
+      name: Binh Ngo
+      email: ngo.datasolutions@gmail.com

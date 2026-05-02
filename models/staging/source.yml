@@ -2,7 +2,7 @@ version: 2
 
 sources:
   - name: src_eth
-    database: ETH
+    database: DBT
     schema: ETH_SCHEMA
     description: Ethereum source data
     tables:
@@ -12,3 +12,11 @@ sources:
         description: Token transfer events
       - name: TRANSACTIONS
         description: Blockchain transactions
+
+  - name: src_finance
+    database: DBT
+    schema: RAW_FINANCE
+    description: Yahoo Finance Data
+    tables:   
+      - name: yahoo_daily_prices
+        description: Daily stock prices

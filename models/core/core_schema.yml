@@ -1,0 +1,131 @@
+version: 2
+
+models:
+  - name: core_eth_contracts
+    description: "Rohe Auswahl aller Smart Contracts aus dem Staging-Layer."
+    columns:
+      - name: ADDRESS
+        description: "Eindeutige Adresse des Smart Contracts."
+        tests:
+          - unique
+          - not_null
+      - name: BLOCK_HASH
+        description: "Hash des Blocks, in dem der Contract deployed wurde."
+      - name: BLOCK_NUMBER
+        description: "Blocknummer des Deployments."
+      - name: BLOCK_TIMESTAMP
+        description: "Zeitstempel des Deployments."
+      - name: BYTECODE
+        description: "Ausführbarer Bytecode des Smart Contracts."
+      - name: DATE
+        description: "Datum des Deployments."
+      - name: LAST_MODIFIED
+        description: "Zeitstempel der letzten Änderung des Datensatzes."
+
+  - name: core_eth_contracts_deployments
+    description: "Smart Contracts angereichert mit Details der Deployment-Transaktion — zeigt wer den Contract deployed hat, welche Transaktion dafür verwendet wurde und wie viel Gas verbraucht wurde."
+    columns:
+      - name: ADDRESS
+        description: "Eindeutige Adresse des Smart Contracts."
+        tests:
+          - unique
+          - not_null
+      - name: DEPLOYMENT_BLOCK_NUMBER
+        description: "Blocknummer, in der der Contract deployed wurde."
+      - name: DEPLOYMENT_TIMESTAMP
+        description: "Zeitstempel des Deployment-Blocks."
+      - name: DEPLOYMENT_DATE
+        description: "Datum des Deployments."
+      - name: DEPLOYMENT_TX_HASH
+        description: "Hash der Transaktion, die das Deployment ausgelöst hat."
+      - name: DEPLOYER_ADDRESS
+        description: "Adresse des Wallets, das den Contract deployed hat."
+      - name: DEPLOYMENT_GAS_USED
+        description: "Tatsächlich verbrauchtes Gas für das Deployment."
+      - name: DEPLOYMENT_GAS_PRICE
+        description: "Effektiver Gas-Preis der Deployment-Transaktion in Wei."
+      - name: DEPLOYMENT_STATUS
+        description: "Status der Deployment-Transaktion: 1 = Erfolg, 0 = Fehler."
+
+  - name: core_eth_contracts_activity
+    description: "Aggregierte Token-Transfer-Aktivität pro Smart Contract — zeigt wie aktiv ein Contract genutzt wird anhand von Transfer-Anzahl, Gesamtvolumen und zeitlichem Aktivitätsrahmen."
+    columns:
+      - name: CONTRACT_ADDRESS
+        description: "Eindeutige Adresse des Smart Contracts."
+        tests:
+          - unique
+          - not_null
+      - name: DEPLOYMENT_DATE
+        description: "Datum, an dem der Contract deployed wurde."
+      - name: TOTAL_TRANSFERS
+        description: "Gesamtanzahl der Token-Transfers, die über diesen Contract abgewickelt wurden."
+      - name: TOTAL_VOLUME
+        description: "Gesamtvolumen aller Token-Transfers in Wei."
+      - name: FIRST_TRANSFER_AT
+        description: "Zeitstempel des ersten Token-Transfers über diesen Contract."
+      - name: LAST_TRANSFER_AT
+        description: "Zeitstempel des letzten Token-Transfers über diesen Contract."
+
+  - name: core_stock_daily_prices
+    description: "Tägliche Aktienkurse angereichert mit abgeleiteten Metriken — enthält neben den Rohkursen die tägliche Preisspanne, den Vortages-Schlusskurs, die prozentuale Tagesveränderung sowie eine Kennzeichnung ob der Tag ein Up-Day war."
+    columns:
+      - name: ticker
+        description: "Börsenkürzel des Wertpapiers."
+        tests:
+          - not_null
+      - name: price_date
+        description: "Handelsdatum."
+        tests:
+          - not_null
+      - name: open_price
+        description: "Eröffnungskurs des Handelstages."
+      - name: high_price
+        description: "Höchstkurs des Handelstages."
+      - name: low_price
+        description: "Tiefstkurs des Handelstages."
+      - name: close_price
+        description: "Schlusskurs des Handelstages."
+      - name: adj_close_price
+        description: "Bereinigter Schlusskurs (adjustiert für Splits und Dividenden)."
+      - name: volume
+        description: "Gehandeltes Volumen des Handelstages."
+      - name: source_system
+        description: "Quellsystem des Datensatzes."
+      - name: loaded_at
+        description: "Zeitstempel des Ladevorgangs."
+      - name: price_range
+        description: "Tägliche Preisspanne berechnet als Höchstkurs minus Tiefstkurs."
+      - name: prev_close_price
+        description: "Schlusskurs des vorherigen Handelstages (LAG über ticker)."
+      - name: daily_return
+        description: "Prozentuale Kursveränderung gegenüber dem Vortag: (close - prev_close) / prev_close."
+      - name: is_up_day
+        description: "True wenn der Schlusskurs höher als der Vortages-Schlusskurs ist, sonst False."
+
+  - name: core_stock_rolling_metrics
+    description: "Rollierende Kennzahlen pro Aktie auf Basis der täglichen Kurshistorie — enthält gleitende Durchschnitte (7 und 30 Tage), die 30-Tage-Volatilität der Daily Returns sowie das durchschnittliche Handelsvolumen der letzten 30 Tage."
+    columns:
+      - name: ticker
+        description: "Börsenkürzel des Wertpapiers."
+        tests:
+          - not_null
+      - name: price_date
+        description: "Handelsdatum."
+        tests:
+          - not_null
+      - name: close_price
+        description: "Schlusskurs des Handelstages."
+      - name: adj_close_price
+        description: "Bereinigter Schlusskurs (adjustiert für Splits und Dividenden)."
+      - name: volume
+        description: "Gehandeltes Volumen des Handelstages."
+      - name: daily_return
+        description: "Prozentuale Kursveränderung gegenüber dem Vortag."
+      - name: ma_7d
+        description: "Gleitender Durchschnitt des Schlusskurses über die letzten 7 Handelstage."
+      - name: ma_30d
+        description: "Gleitender Durchschnitt des Schlusskurses über die letzten 30 Handelstage."
+      - name: volatility_30d
+        description: "Standardabweichung der Daily Returns über die letzten 30 Handelstage als Maß für die Kursschwankung."
+      - name: avg_volume_30d
+        description: "Durchschnittliches Handelsvolumen über die letzten 30 Handelstage."
