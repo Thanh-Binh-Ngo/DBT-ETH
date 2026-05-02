@@ -1,0 +1,10 @@
+select
+	ADDRESS,
+	BLOCK_HASH,
+	BLOCK_NUMBER,
+	BLOCK_TIMESTAMP,
+	BYTECODE,
+	DATE,
+	LAST_MODIFIED
+FROM {{ ref('stg_eth_contracts') }}
+LIMIT 50

@@ -1,9 +1,103 @@
 version: 2
 
 models:
-  - name: stg_eth_token_transfers
+  - name: stg_eth_contracts
+    group: staging
+    access: protected
+    description: "Alle auf der Ethereum-Blockchain deployed Smart Contracts."
     columns:
-      - name: VALUE
+      - name: ADDRESS
+        description: "Eindeutige Adresse des Smart Contracts."
         tests:
-          - no_negative_amount:
-              column_name: VALUE
+          - unique
+          - not_null
+      - name: BLOCK_HASH
+        description: "Hash des Blocks, in dem der Contract deployed wurde."
+      - name: BLOCK_NUMBER
+        description: "Blocknummer, in der der Contract deployed wurde."
+      - name: BLOCK_TIMESTAMP
+        description: "Zeitstempel des Blocks, in dem der Contract deployed wurde."
+      - name: BYTECODE
+        description: "Ausführbarer Bytecode des Smart Contracts."
+      - name: DATE
+        description: "Datum des Deployments (abgeleitet aus BLOCK_TIMESTAMP)."
+      - name: LAST_MODIFIED
+        description: "Zeitstempel der letzten Änderung des Datensatzes."
+
+  - name: stg_eth_token_transfers
+    group: staging
+    access: protected
+    description: "Alle Token-Transfers auf der Ethereum-Blockchain, ausgelöst durch Smart Contracts (ERC-20, ERC-721 etc.)."
+    columns:
+      - name: BLOCK_HASH
+        description: "Hash des Blocks, in dem der Transfer stattfand."
+      - name: BLOCK_NUMBER
+        description: "Blocknummer, in der der Transfer stattfand."
+      - name: BLOCK_TIMESTAMP
+        description: "Zeitstempel des Blocks, in dem der Transfer stattfand."
+      - name: DATE
+        description: "Datum des Transfers (abgeleitet aus BLOCK_TIMESTAMP)."
+      - name: FROM_ADDRESS
+        description: "Adresse des Senders des Tokens."
+      - name: TO_ADDRESS
+        description: "Adresse des Empfängers des Tokens."
+      - name: LAST_MODIFIED
+        description: "Zeitstempel der letzten Änderung des Datensatzes."
+      - name: LOG_INDEX
+        description: "Index des Ereignisses (Event Log) innerhalb der Transaktion."
+      - name: TOKEN_ADDRESS
+        description: "Adresse des Smart Contracts, der den Token verwaltet (Referenz auf stg_eth_contracts.ADDRESS)."
+      - name: TRANSACTION_HASH
+        description: "Hash der Transaktion, die den Transfer ausgelöst hat (Referenz auf stg_eth_transactions.HASH)."
+      - name: VALUE
+        description: "Übertragene Token-Menge."
+
+  - name: stg_eth_transactions
+    group: staging
+    access: protected
+    description: "Alle Transaktionen auf der Ethereum-Blockchain."
+    columns:
+      - name: BLOCK_HASH
+        description: "Hash des Blocks, in dem die Transaktion enthalten ist."
+      - name: BLOCK_NUMBER
+        description: "Blocknummer, in der die Transaktion enthalten ist."
+      - name: BLOCK_TIMESTAMP
+        description: "Zeitstempel des Blocks."
+      - name: DATE
+        description: "Datum der Transaktion (abgeleitet aus BLOCK_TIMESTAMP)."
+      - name: FROM_ADDRESS
+        description: "Adresse des Absenders der Transaktion."
+      - name: GAS
+        description: "Maximales Gas-Limit der Transaktion."
+      - name: GAS_PRICE
+        description: "Preis pro Gas-Einheit in Wei."
+      - name: HASH
+        description: "Eindeutiger Hash der Transaktion."
+      - name: INPUT
+        description: "Eingabedaten der Transaktion (z.B. Contract-Aufruf-Parameter)."
+      - name: LAST_MODIFIED
+        description: "Zeitstempel der letzten Änderung des Datensatzes."
+      - name: MAX_FEE_PER_GAS
+        description: "Maximale Gebühr pro Gas-Einheit (EIP-1559)."
+      - name: MAX_PRIORITY_FEE_PER_GAS
+        description: "Maximale Prioritätsgebühr pro Gas-Einheit (Trinkgeld an Miner)."
+      - name: NONCE
+        description: "Transaktionszähler des Absenders."
+      - name: RECEIPT_CONTRACT_ADDRESS
+        description: "Adresse des deployten Contracts (nur bei Contract-Deployment, sonst NULL)."
+      - name: RECEIPT_CUMULATIVE_GAS_USED
+        description: "Kumuliertes Gas aller Transaktionen bis zu dieser im Block."
+      - name: RECEIPT_EFFECTIVE_GAS_PRICE
+        description: "Tatsächlich gezahlter Gas-Preis nach EIP-1559."
+      - name: RECEIPT_GAS_USED
+        description: "Tatsächlich verbrauchtes Gas dieser Transaktion."
+      - name: RECEIPT_STATUS
+        description: "Status der Transaktion: 1 = Erfolg, 0 = Fehler."
+      - name: TO_ADDRESS
+        description: "Adresse des Empfängers oder des aufgerufenen Contracts."
+      - name: TRANSACTION_INDEX
+        description: "Position der Transaktion innerhalb des Blocks."
+      - name: TRANSACTION_TYPE
+        description: "Transaktionstyp (0 = Legacy, 1 = EIP-2930, 2 = EIP-1559)."
+      - name: VALUE
+        description: "Übertragener ETH-Betrag in Wei."

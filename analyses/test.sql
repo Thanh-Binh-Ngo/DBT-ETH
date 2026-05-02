@@ -1,0 +1,1 @@
+{{codegen.generate_source('ETH_SCHEMA', database_name = 'DBT', generate_columns= True)}}

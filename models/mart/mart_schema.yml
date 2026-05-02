@@ -1,0 +1,70 @@
+version: 2
+
+models:
+  - name: mart_token_activity
+    description: >
+      Tägliche Token-Transfer-Aktivität aggregiert pro Token-Contract.
+      Geeignet für Analysen zu Transfervolumen, Nutzungsfrequenz und aktiven Wallets.
+      Granularität: ein Datensatz pro Token-Contract und Tag.
+    columns:
+      - name: TOKEN_ADDRESS
+        description: "Adresse des Token-Contracts (Referenz auf stg_eth_contracts.ADDRESS)."
+        tests:
+          - not_null
+      - name: DATE
+        description: "Datum der Aktivität."
+        tests:
+          - not_null
+      - name: TOTAL_TRANSFERS
+        description: "Gesamtanzahl der Token-Transfers an diesem Tag."
+      - name: TOTAL_VOLUME
+        description: "Gesamtvolumen aller Token-Transfers an diesem Tag in Wei."
+      - name: UNIQUE_SENDERS
+        description: "Anzahl eindeutiger Sender-Adressen an diesem Tag."
+      - name: UNIQUE_RECEIVERS
+        description: "Anzahl eindeutiger Empfänger-Adressen an diesem Tag."
+
+  - name: mart_contract_overview
+    latest_version: 2
+    description: |
+      Breite Contract-Übersichtstabelle für BI-Tools und Dashboards.
+
+      Kombiniert zwei Quellen:
+      - Deployment-Details aus core_eth_contracts_deployments (Deployer, Gas, Status)
+      - Aktivitäts-Metriken aus core_eth_contracts_activity (Volumen, Transfers)
+
+      Granularität: ein Datensatz pro Smart Contract.
+    versions:
+      - v: 1
+        defined_in: mart_contract_overview
+        deprecation_date: 2026-04-01
+      - v: 2
+        columns:
+          - include: all
+            exclude: [DEPLOYMENT_GAS_PRICE, DEPLOYMENT_STATUS]
+    columns:
+      - name: ADDRESS
+        description: "Eindeutige Adresse des Smart Contracts."
+        tests:
+          - unique
+          - not_null
+      - name: DEPLOYMENT_DATE
+        description: "Datum, an dem der Contract deployed wurde."
+      - name: DEPLOYER_ADDRESS
+        description: "Adresse des Wallets, das den Contract deployed hat."
+      - name: DEPLOYMENT_TX_HASH
+        description: "Hash der Deployment-Transaktion."
+      - name: DEPLOYMENT_GAS_USED
+        description: "Tatsächlich verbrauchtes Gas für das Deployment."
+      - name: DEPLOYMENT_GAS_PRICE
+        description: "Effektiver Gas-Preis der Deployment-Transaktion in Wei."
+      - name: DEPLOYMENT_STATUS
+        description: "Status der Deployment-Transaktion: 1 = Erfolg, 0 = Fehler."
+      - name: TOTAL_TRANSFERS
+        description: "Gesamtanzahl der Token-Transfers über diesen Contract."
+      - name: TOTAL_VOLUME
+        description: "Gesamtvolumen aller Token-Transfers in Wei."
+      - name: FIRST_TRANSFER_AT
+        description: "Zeitstempel des ersten Token-Transfers über diesen Contract."
+      - name: LAST_TRANSFER_AT
+        description: "Zeitstempel des letzten Token-Transfers über diesen Contract."
