@@ -101,3 +101,31 @@ models:
         description: "Transaktionstyp (0 = Legacy, 1 = EIP-2930, 2 = EIP-1559)."
       - name: VALUE
         description: "Übertragener ETH-Betrag in Wei."
+
+  - name: stg_stock_daily_prices
+    description: "Tägliche Aktienkurse aus Yahoo Finance — enthält OHLCV-Daten (Open, High, Low, Close, Volume) sowie den bereinigten Schlusskurs pro Ticker und Handelstag."
+    columns:
+      - name: ticker
+        description: "Börsenkürzel des Wertpapiers."
+        tests:
+          - not_null
+      - name: price_date
+        description: "Handelsdatum."
+        tests:
+          - not_null
+      - name: open_price
+        description: "Eröffnungskurs des Handelstages."
+      - name: high_price
+        description: "Höchstkurs des Handelstages."
+      - name: low_price
+        description: "Tiefstkurs des Handelstages."
+      - name: close_price
+        description: "Schlusskurs des Handelstages."
+      - name: adj_close_price
+        description: "Bereinigter Schlusskurs (adjustiert für Splits und Dividenden)."
+      - name: volume
+        description: "Gehandeltes Volumen des Handelstages."
+      - name: source_system
+        description: "Quellsystem des Datensatzes."
+      - name: loaded_at
+        description: "Zeitstempel des Ladevorgangs."

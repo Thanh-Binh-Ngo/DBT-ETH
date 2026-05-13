@@ -1,3 +1,4 @@
+{{ config(tags=['finance']) }}
 SELECT
     ticker,
     price_date,

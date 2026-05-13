@@ -1,7 +1,7 @@
 {{
     config(
         materialized='incremental',
-        strategy='delete+insert',
+        incremental_strategy='delete+insert',
         unique_key='HASH',
         grants={'select': ['TESTER']}
     )
