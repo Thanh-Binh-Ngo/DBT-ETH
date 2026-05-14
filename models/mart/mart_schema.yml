@@ -1,5 +1,56 @@
 version: 2
 
+# ============================================================
+# VERFÜGBARE EIGENSCHAFTEN AUF MODEL-EBENE
+# ============================================================
+# - name:             (required) Modellname (muss mit Dateiname übereinstimmen)
+# - description:      Freitext, unterstützt > (inline) und | (mehrzeilig)
+# - group:            Zuordnung zu einer Gruppe (definiert in groups.yml)
+# - access:           Sichtbarkeit: private | protected | public
+# - config:           Inline-Konfiguration (entspricht dbt_project.yml):
+#     materialized:       table | view | incremental | ephemeral
+#     schema:             Zielschema (überschreibt default)
+#     alias:              Tabellenname in der Datenbank
+#     tags:               Liste von Tags für Selektion (z.B. [daily, finance])
+#     meta:               Beliebige Key-Value-Metadaten (z.B. owner, team)
+#     enabled:            true | false – Modell aktivieren/deaktivieren
+#     on_schema_change:   ignore | fail | append_new_columns | sync_all_columns
+#     full_refresh:       true | false – überschreibt --full-refresh Flag
+#     contract:
+#       enforced:         true | false – Spaltentypen werden geprüft
+# - constraints:      Datenbank-Constraints (requires contract.enforced: true)
+# - latest_version:   Aktuelle Standardversion bei versionierten Modellen
+# - versions:         Liste aller Versionen (siehe mart_contract_overview)
+# - deprecation_date: Datum ab dem das Modell als veraltet gilt (ISO 8601)
+# - docs:
+#     show:           true | false – in dbt docs anzeigen
+#     node_color:     Farbe im Lineage-Graph (z.B. "#FF5733")
+# - columns:          Liste aller Spalten (siehe unten)
+# - tests:            Tests auf Model-Ebene (z.B. unique-Kombinationen)
+#
+# ============================================================
+# VERFÜGBARE EIGENSCHAFTEN AUF SPALTEN-EBENE
+# ============================================================
+# - name:             (required) Spaltenname
+# - description:      Beschreibung der Spalte
+# - data_type:        Datentyp (z.B. varchar, number, boolean) – für contracts
+# - constraints:      Datenbank-Constraints: not_null | unique | primary_key |
+#                     foreign_key | check (requires contract.enforced: true)
+# - meta:             Beliebige Key-Value-Metadaten (z.B. pii: true)
+# - quote:            true | false – Spaltenname in Anführungszeichen
+# - tests:            Liste von Tests:
+#     - not_null
+#     - unique
+#     - accepted_values:
+#         values: [a, b, c]
+#     - relationships:
+#         to: ref('other_model')
+#         field: id
+# - tags:             Tags für Selektion
+# - docs:
+#     show:           true | false
+# ============================================================
+
 models:
   - name: mart_token_activity
     description: >

@@ -2,6 +2,11 @@
 # Name your project! Project names should contain only lowercase characters
 # and underscores. A good package name should reflect your organization's
 # name or the intended use of these models
+
+#flags:
+#  send_anonymous_usage_stats: false
+#  fail-fast: true
+
 name: 'dbt_eth'
 version: '1.0.0'
 
@@ -53,3 +58,4 @@ models:
       +materialized: view
       +schema: mart
       +tags: [mart] 
+

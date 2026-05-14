@@ -1,3 +1,29 @@
+# PACKAGES — externe dbt-Projekte, die Macros/Modelle/Tests liefern
+# Installieren mit: dbt deps  (landet in dbt_packages/)
+#
+# DIESES PROJEKT ALS PACKAGE:
+# Name dieses Projekts ist 'dbt_eth' (aus dbt_project.yml → name:)
+# Andere Projekte können es so einbinden:
+#
+#   # anderes-projekt/packages.yml
+#   packages:
+#     - git: "https://github.com/binh/dbt_eth"
+#       revision: "v1.0.0"
+#
+# Zugriff auf Modelle dann via:
+#   {{ ref('dbt_eth', 'mart_token_activity') }}
+#
+# Welche Modelle von außen nutzbar sind → access: in schema.yml steuern:
+#   access: public   → anderes Projekt darf ref() nutzen
+#   access: private  → nur intern, ref() von außen schlägt fehl
+#
+# Typisches Multi-Projekt-Setup:
+#   dbt_eth (dieses Projekt)  →  Blockchain-Mart-Modelle
+#   dbt_finance               →  importiert dbt_eth, baut Finance-Modelle
+#   dbt_reporting             →  importiert beide für BI-Dashboards
+
 packages:
+  # dbt-labs/codegen: generiert schema.yml und sources.yml automatisch
+  # Nutzung: dbt run-operation generate_model_yaml --args '{"model_names": ["stg_transactions"]}'
   - package: dbt-labs/codegen
     version: 0.14.0

@@ -9,7 +9,6 @@ select
     volume,
     source_system,
     loaded_at,
-
     round(high_price - low_price, 4)                                        as price_range,
 
     round(
@@ -27,6 +26,8 @@ select
         when close_price > lag(close_price) over (partition by ticker order by price_date)
         then true
         else false
-    end                                                                      as is_up_day
+    end                                                                      as is_up_day,
+    {{devided_two('close_price')}} as close_price_devided_2,
+    {{devided('close_price','4',)}} as close_price_devided_4
 
 from {{ ref('stg_stock_daily_prices') }}
