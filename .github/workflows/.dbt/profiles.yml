@@ -6,7 +6,7 @@ dbt_eth:
       private_key_path: "{{env_var('DBT_PRIVATE_KEY_PATH')}}"
       password: 
       role: "{{env_var('DBT_SNOWFLAKE_ROLE')}}"
-      schema: CI_SCHEMA
+      schema: "{{env_var('DBT_SCHEMA')}}"
       threads: 1
       type: snowflake
       user: "{{env_var('DBT_SNOWFLAKE_USER')}}"

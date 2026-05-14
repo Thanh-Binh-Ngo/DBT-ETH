@@ -22,6 +22,7 @@ jobs:
       DBT_SNOWFLAKE_IDENTIFIER: ${{ secrets.DBT_SNOWFLAKE_IDENTIFIER }}
       DBT_SNOWFLAKE_ROLE: ${{ secrets.DBT_SNOWFLAKE_ROLE }}
       DBT_SNOWFLAKE_USER: ${{ secrets.DBT_SNOWFLAKE_USER }}
+      DBT_SCHEMA: pr_${{ github.event.pull_request.number }}
 
     steps:
       # 1. Quellcode in die CI-Umgebung laden
@@ -59,5 +60,14 @@ jobs:
         run: dbt debug --target ci
 
       # 7. Alle Modelle, Tests und Snapshots gegen das CI-Target ausführen
+      - name: Run dbt seed
+        run: dbt seed --target ci
+
+      # 8. Alle Modelle, Tests und Snapshots gegen das CI-Target ausführen
       - name: Run dbt
         run: dbt run --target ci
+
+      # 9. CI-Schema in Snowflake löschen — läuft immer, auch bei Fehler
+      - name: Cleanup CI schema
+        if: always()
+        run: dbt run-operation drop_ci_schema --target ci
