@@ -68,6 +68,6 @@ jobs:
         run: dbt run --target ci
 
       # 9. CI-Schema in Snowflake löschen — läuft immer, auch bei Fehler
-      - name: Cleanup CI schema
-        if: always()
-        run: dbt run-operation drop_ci_schema --target ci
+      #- name: Cleanup CI schema
+      #  if: always()
+      #  run: dbt run-operation drop_ci_schema --target ci
