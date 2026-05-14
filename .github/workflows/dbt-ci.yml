@@ -23,6 +23,7 @@ jobs:
       DBT_SNOWFLAKE_ROLE: ${{ secrets.DBT_SNOWFLAKE_ROLE }}
       DBT_SNOWFLAKE_USER: ${{ secrets.DBT_SNOWFLAKE_USER }}
       DBT_SCHEMA: pr_${{ github.event.pull_request.number }}
+      DBT_DATABASE: ${{ secrets.DBT_DATABASE }}
 
     steps:
       # 1. Quellcode in die CI-Umgebung laden
