@@ -19,6 +19,9 @@ jobs:
       # Privater RSA-Schlüssel für die Snowflake-Authentifizierung (aus GitHub Secrets)
       DBT_PRIVATE_KEY: ${{ secrets.DBT_PRIVATE_KEY }}
       DBT_PRIVATE_KEY_PATH: /home/runner/.dbt/rsa_key.p8
+      DBT_SNOWFLAKE_IDENTIFIER: ${{ secrets.DBT_SNOWFLAKE_IDENTIFIER }}
+      DBT_SNOWFLAKE_ROLE: ${{ secrets.DBT_SNOWFLAKE_ROLE }}
+      DBT_SNOWFLAKE_USER: ${{ secrets.DBT_SNOWFLAKE_USER }}
 
     steps:
       # 1. Quellcode in die CI-Umgebung laden

@@ -1,14 +1,14 @@
 dbt_eth:
   outputs:
     ci:
-      account: SFOWMPL-FNB67103
+      account: "{{env_var('DBT_SNOWFLAKE_IDENTIFIER')}}"
       database: DBT
       private_key_path: "{{env_var('DBT_PRIVATE_KEY_PATH')}}"
       password: 
-      role: ACCOUNTADMIN
+      role: "{{env_var('DBT_SNOWFLAKE_ROLE')}}"
       schema: CI_SCHEMA
       threads: 1
       type: snowflake
-      user: ngodatasolutions
+      user: "{{env_var('DBT_SNOWFLAKE_USER')}}"
       warehouse: COMPUTE_WH
   target: ci
