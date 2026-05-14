@@ -85,6 +85,9 @@ models:
         description: "Tiefstkurs des Handelstages."
       - name: close_price
         description: "Schlusskurs des Handelstages."
+        tests:
+          - always_fails:
+              severity: warn  # Simulation: schlägt immer fehl
       - name: adj_close_price
         description: "Bereinigter Schlusskurs (adjustiert für Splits und Dividenden)."
       - name: volume
