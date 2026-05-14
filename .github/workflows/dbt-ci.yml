@@ -57,4 +57,4 @@ jobs:
 
       # 7. Alle Modelle, Tests und Snapshots gegen das CI-Target ausführen
       - name: Run dbt
-        run: dbt build --target ci
+        run: dbt run --target ci
