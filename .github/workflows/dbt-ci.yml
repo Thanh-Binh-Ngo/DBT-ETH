@@ -67,17 +67,16 @@ jobs:
       # 7. Basis-Manifest vom main-Branch erzeugen, das als State-Referenz für den
       #    Slim-CI-Vergleich dient (state:modified+).
       #    Ablauf:
-      #      - state/-Ordner anlegen (vor dem Branch-Wechsel)
       #      - auf main wechseln und dessen Packages installieren
       #      - dbt parse erzeugt target/manifest.json ohne Snowflake-Run
       #      - Manifest in state/ kopieren
       #      - zurück zum PR-Branch wechseln und PR-Packages wiederherstellen
       - name: Create state manifest from main
         run: |
-          mkdir -p state
           git checkout main
           dbt deps
           dbt parse --target ci
+          mkdir -p state
           cp target/manifest.json state/manifest.json
           git checkout -
           dbt deps
