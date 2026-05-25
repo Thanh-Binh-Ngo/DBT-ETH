@@ -1,10 +1,10 @@
 # CI-Pipeline für das dbt-Projekt.
-# Wird automatisch ausgelöst, sobald ein Pull Request gegen den master-Branch
+# Wird automatisch ausgelöst, sobald ein Pull Request gegen den main-Branch
 # geöffnet oder aktualisiert wird. Prüft, ob alle dbt-Modelle fehlerfrei bauen
 # und alle Tests in Snowflake (CI-Target) bestehen.
 name: dbt CI
 
-# Trigger: bei jedem PR gegen master
+# Trigger: bei jedem PR gegen main
 on:
   pull_request:
     branches:
@@ -22,29 +22,32 @@ jobs:
       DBT_SNOWFLAKE_IDENTIFIER: ${{ secrets.DBT_SNOWFLAKE_IDENTIFIER }}
       DBT_SNOWFLAKE_ROLE: ${{ secrets.DBT_SNOWFLAKE_ROLE }}
       DBT_SNOWFLAKE_USER: ${{ secrets.DBT_SNOWFLAKE_USER }}
+      # PR-spezifisches Schema, damit jeder PR seinen eigenen Namespace bekommt
       DBT_SCHEMA: pr_${{ github.event.pull_request.number }}
       DBT_DATABASE: ${{ secrets.DBT_DATABASE }}
 
     steps:
-      # 1. Quellcode in die CI-Umgebung laden
+      # 1. Vollständigen Git-Verlauf laden (fetch-depth: 0), damit git checkout main
+      #    auf den Basis-Branch zugreifen kann — wird für den State-Vergleich benötigt.
       - name: Checkout repo
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-      # 2. Python installieren
+      # 2. Python-Version setzen, die mit dbt-core und dbt-snowflake kompatibel ist.
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.12.10"
 
-      # 3. dbt-core und dbt-snowflake installieren
+      # 3. dbt-core und den Snowflake-Adapter in den passenden Versionen installieren.
       - name: Install dbt
         run: |
           python -m pip install --upgrade pip
           pip install dbt-core==1.9.4 dbt-snowflake==1.9.4
 
-      # 4. dbt-Profil und privaten Schlüssel einrichten
-      #    profiles.yml wird aus .dbt/ ins Homeverzeichnis kopiert,
-      #    der RSA-Schlüssel aus dem Secret als Datei gespeichert.
+      # 4. dbt-Profil aus dem Repo ins Home-Verzeichnis kopieren und den privaten
+      #    RSA-Schlüssel aus dem GitHub Secret als Datei ablegen (Berechtigung 600).
       - name: Set up dbt profile + private key
         run: |
           mkdir -p ~/.dbt
@@ -52,23 +55,57 @@ jobs:
           echo "$DBT_PRIVATE_KEY" > ~/.dbt/rsa_key.p8
           chmod 600 ~/.dbt/rsa_key.p8
 
-      # 5. dbt-Packages aus packages.yml installieren
+      # 5. Alle in packages.yml deklarierten dbt-Packages für den PR-Branch installieren.
       - name: Install dbt deps
         run: dbt deps
 
-      # 6. Verbindung zu Snowflake testen
+      # 6. Verbindung zu Snowflake über das CI-Target testen, bevor die eigentlichen
+      #    Schritte starten — schlägt die Verbindung fehl, bricht der Job frühzeitig ab.
       - name: Run dbt debug
         run: dbt debug --target ci
 
-      # 7. Alle Modelle, Tests und Snapshots gegen das CI-Target ausführen
-      - name: Run dbt seed
-        run: dbt seed --target ci
+      # 7. Basis-Manifest vom main-Branch erzeugen, das als State-Referenz für den
+      #    Slim-CI-Vergleich dient (state:modified+).
+      #    Ablauf:
+      #      - state/-Ordner anlegen (vor dem Branch-Wechsel)
+      #      - auf main wechseln und dessen Packages installieren
+      #      - dbt parse erzeugt target/manifest.json ohne Snowflake-Run
+      #      - Manifest in state/ kopieren
+      #      - zurück zum PR-Branch wechseln und PR-Packages wiederherstellen
+      - name: Create state manifest from main
+        run: |
+          mkdir -p state
+          git checkout main
+          dbt deps
+          dbt parse --target prod
+          cp target/manifest.json state/manifest.json
+          git checkout -
+          dbt deps
 
-      # 8. Alle Modelle, Tests und Snapshots gegen das CI-Target ausführen
-      - name: Run dbt
-        run: dbt run --target ci
+      # 8. Inkrementelle Modelle, die von den Änderungen betroffen sind und bereits in
+      #    prod existieren (state:old), in das PR-Schema klonen. Damit gibt
+      #    is_incremental() im nachfolgenden Build-Schritt True zurück und die Modelle
+      #    werden inkrementell und nicht als Full-Refresh ausgeführt.
+      - name: Clone impacted incremental models into PR schema
+        run: |
+          dbt clone \
+            --target ci \
+            --state ./state \
+            --select "state:modified+,config.materialized:incremental,state:old"
 
-      # 9. CI-Schema in Snowflake löschen — läuft immer, auch bei Fehler
+      # 9. Slim Build: nur geänderte Modelle und deren Downstream-Abhängigkeiten werden
+      #    gebaut und getestet. Nicht geänderte Upstream-Modelle werden via --defer
+      #    direkt aus der prod-Umgebung referenziert, ohne neu gebaut zu werden.
+      - name: Slim build (modified + downstream)
+        run: |
+          dbt build \
+            --target ci \
+            --state ./state \
+            --defer \
+            --select "state:modified+"
+
+      # 10. PR-Schema in Snowflake aufräumen — läuft immer, auch wenn vorherige Schritte
+      #     fehlgeschlagen sind, um keine verwaisten Schemas zu hinterlassen.
       - name: Cleanup CI schema
         if: always()
         run: dbt run-operation drop_ci_schema --target ci
